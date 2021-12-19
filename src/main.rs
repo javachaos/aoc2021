@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+
 fn print(p: u8) {
     println!("[{:08b}]", p)
 }
@@ -55,9 +59,8 @@ fn diff(d1: u8, d2: u8) -> u8 {
     set_unknown(d1 & !d2)
 }
 
-fn main() {
-    let str_eg: String = String::from("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf");
-
+fn calc_str(strings: String) -> u64 {
+    
     //Knowns
     let mut _two:   u8 = 0;
     let mut _three: u8 = 0;
@@ -70,15 +73,13 @@ fn main() {
     let mut _six:   u8 = 0;
     let mut _seven: u8 = 0;
     let mut _nine:  u8 = 0;
-
-    let r: Vec<&str> = str_eg.split(" | ").collect();
+    let mut count: u64 = 0;
+    let r: Vec<&str> = strings.split(" | ").collect();
     let observed: Vec<&str> = r[0].split_whitespace().collect();
     let four_displays: Vec<&str> = r[1].split_whitespace().collect();
     let outputs = four_displays.clone();
-    let all_str = observed.into_iter().chain(four_displays.into_iter()).collect::<Vec<&str>>();
-
-    //collect knowns
-    for s in &all_str {
+    //let all_str = observed.into_iter().chain(four_displays.into_iter()).collect::<Vec<&str>>();   //collect knowns
+    for s in &observed {
         match s.chars().count() {
             2 => { _one   = encode(s);   _one = set_known(_one);  }
             3 => { _seven = encode(s); _seven = set_known(_seven);}
@@ -86,11 +87,10 @@ fn main() {
             7 => { _eight = encode(s); _eight = set_known(_eight);}
             _ => { }
         }
-    }
+    }//TODO figure out wtf is going on.
     let _m = |n,m| symdiff(n, m);
     let _d = |n,m| diff(n, m);
-
-    for s in &all_str {
+    for s in &observed {
         let x = encode(s);
         let first  = _d(x, _one).count_ones();
         let second = _d(x, _four).count_ones();
@@ -122,10 +122,8 @@ fn main() {
         }
     }
     let mut i = 0;
-    let _ten: u32 = 10;
-    let mut count = 0;
+    let _ten: u64 = 10;
     for d in &outputs {
-        i += 1;
         let mut x = encode(d);
         x = set_known(x);
         match x {
@@ -141,6 +139,29 @@ fn main() {
             n if _nine  == n => count += 9*_ten.pow(i),
             _ => {}
         }
+        i += 1;
     }
-    println!("Count: {}", count/10);
+    println!("Count: {}", count);
+    count
+}
+
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
+
+fn main() {
+    let mut final_count = 0;
+    let mut i = 0;
+    if let Ok(lines) = read_lines("./data/aoc8.txt") {
+        for line in lines {
+            if let Ok(s) = line {
+                println!("Line: {} ", i);
+                i += 1;
+                final_count += calc_str(s);
+            }
+        }
+    }
+    println!("Final count: {}", final_count);
 }
