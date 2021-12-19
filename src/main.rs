@@ -12,7 +12,7 @@ fn set(n: u8, k: usize) -> u8 {
 }
 
 fn get(n: u8, k: usize) -> u8 {
-    n >> k & 1_u8
+    (n >> k) & 1_u8
 }
 
 fn clear(n: u8, k: u8) -> u8 {
@@ -54,7 +54,7 @@ fn is_known(d: u8) -> bool {
     get(d, 7) == 1
 }
 fn set_known(d: u8) -> u8 {
-   set(d, 7) 
+    set(d, 7) 
 }
 fn set_unknown(d: u8) -> u8 {
     clear(d, 7)
@@ -98,36 +98,42 @@ fn main() {
     
     for s in &observed {
         let d: u8 = encode(s);
+        print(d);
         match s.chars().count() {
             2 => { _one   = encode(s);   _one = set_known(_one);  }
             4 => { _four  = encode(s);  _four = set_known(_four); }
             3 => { _seven = encode(s); _seven = set_known(_seven);}
             7 => { _eight = encode(s); _eight = set_known(_eight);}
             6 => {   
-                    if !is_known(_zero.clone()) {
+                    if !is_known(_zero) {
                         _zero = encode(s);
-                        if _zero == plus(symdiff(diff(_eight.clone(), _one.clone()),_four.clone()), diff(_eight.clone(),_two.clone())) {
-                            set_known(_zero);
+                        if _zero == plus(diff(diff(_eight.clone(), _one.clone()),_four.clone()), diff(_eight.clone(),_two.clone())) {
+                            _zero = set_known(_zero);
+                            break;
                         }
                     }
-                    if !is_known(_six.clone()) {
+                    if !is_known(_six) {
                         _six = encode(s);
+                        if _six == 99 {}//TODO work out set logic
                     }
-                    if !is_known(_nine.clone()) {
+                    if !is_known(_nine) {
                         _nine = encode(s);
+                        if _nine == 99 {}// TODO work out set logic
                     }
             }
             5 => {   
-                    if !is_known(_two.clone()) {
+                    if !is_known(_two) {
                         _two = encode(s);
+                        if _two == 99 {}//TODO work out set logic
                     }
-                    if !is_known(_five.clone()) {
+                    if !is_known(_five) {
                         _five = encode(s);
+                        if _five == 99 {}//TODO work out set logic
                     }
-                    if !is_known(_three.clone()) {
+                    if !is_known(_three) {
                         _three = encode(s);
-                        if _three == plus(symdiff(_eight.clone(), plus(symdiff(_eight.clone(),_five.clone()),symdiff(_eight.clone(),_two.clone()))), _one.clone()) {
-                            set_known(_three);
+                        if _three == plus(symdiff(_eight, plus(symdiff(_eight,_five),symdiff(_eight,_two))), _one) {
+                            _three = set_known(_three);
                         }
                     }
                 }
@@ -146,19 +152,19 @@ fn main() {
     //     _three = set_unknown(_three.clone());
     // }
 
-    if is_known(_zero.clone()) {
+    if is_known(_zero) {
         println!("0: ");
         print(_zero);
     }
-    if is_known(_three.clone()) {
+    if is_known(_three) {
         println!("3: ");
         print(_three);
     }
-    if is_known(_one.clone()) {
+    if is_known(_one) {
         println!("1: ");
         print(_one);
     }
-    if is_known(_four.clone()) {
+    if is_known(_four) {
         println!("4: ");
         print(_four);
     }
@@ -171,9 +177,8 @@ fn main() {
         print(_eight);
     }
 
-    let mut j = 0;
-    j = set(j, 0);
-    print(j);
-    j = set(j, 1);
-    print(j);
+
+    //let mut x = 0b0000_0001;
+    //x = set_known(x);
+    //reminder that I am an idiot
 }
