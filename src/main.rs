@@ -1,10 +1,6 @@
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
-
-fn print(p: u8) {
-    println!("[{:08b}]", p)
-}
+use std::io::BufRead;
+use std::time::Instant;
+use rayon::prelude::*;
 
 fn _toggle(n: u8, k: usize) -> u8 {
     n ^ n << k 
@@ -12,10 +8,6 @@ fn _toggle(n: u8, k: usize) -> u8 {
 
 fn set(n: u8, k: usize) -> u8 {
     n | 1_u8 << k
-}
-
-fn get(n: u8, k: usize) -> u8 {
-    (n >> k) & 1_u8
 }
 
 fn clear(n: u8, k: u8) -> u8 {
@@ -37,10 +29,6 @@ fn encode(s: &str) -> u8 {
         }
     }
     d
-}
-
-fn is_known(d: u8) -> bool {
-    get(d, 7) == 1
 }
 
 fn set_known(d: u8) -> u8 {
@@ -77,7 +65,6 @@ fn calc_str(strings: String) -> u64 {
     let observed: Vec<&str> = r[0].split_whitespace().collect();
     let four_displays: Vec<&str> = r[1].split_whitespace().collect();
     let outputs = four_displays.clone();
-    //let all_str = observed.into_iter().chain(four_displays.into_iter()).collect::<Vec<&str>>();   //collect knowns
     for s in &observed {
         match s.chars().count() {
             2 => { _one   = encode(s);   _one = set_known(_one);  }
@@ -86,7 +73,7 @@ fn calc_str(strings: String) -> u64 {
             7 => { _eight = encode(s); _eight = set_known(_eight);}
             _ => { }
         }
-    }//TODO figure out wtf is going on.
+    }
     let _m = |n,m| symdiff(n, m);
     let _d = |n,m| diff(n, m);
     for s in &observed {
@@ -96,31 +83,30 @@ fn calc_str(strings: String) -> u64 {
         let third  = _d(x, _seven).count_ones();
         let forth  = _m(x, _eight).count_ones();
         if first == 3 && second == 2 && third == 2 && forth == 2 {
-            _three = x;//done
+            _three = x;
             _three = set_known(_three);
         }
         if first == 4 && second == 3 && third == 3 && forth == 1 {
-            _zero = x;//done
+            _zero = x;
             _zero = set_known(_zero);
         }
         if first == 4 && second == 3 && third == 3 && forth == 2 {
-            _two = x;//done
+            _two = x;
             _two = set_known(_two);
         }
         if first == 4 && second == 2 && third == 3 && forth == 2 {
-            _five = x;//done
+            _five = x;
             _five = set_known(_five);
         }
         if first == 5 && second == 3 && third == 4 && forth == 1 {
-            _six = x;//done
+            _six = x;
             _six = set_known(_six);
         }
         if first == 4 && second == 2 && third == 3 && forth == 1 {
-            _nine = x;//done
+            _nine = x;
             _nine = set_known(_nine);
         }
     }
-    let mut i = 4;
     let mut out: String = String::from("");
     for d in &outputs {
         let mut x = encode(*d);
@@ -138,30 +124,23 @@ fn calc_str(strings: String) -> u64 {
             n if _nine  == n => out.push('9'),
             _ => {}
         }
-        i -= 1;
     }
     let count = out.parse().unwrap();
-    println!("Count: {}", count);
     count
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
 fn main() {
-    let mut final_count = 0;
-    //let mut i = 0;
-    if let Ok(lines) = read_lines("./data/aoc8.txt") {
-        for line in lines {
-            if let Ok(s) = line {
-                //println!("Line: {} ", i);
-                //i += 1;
-                final_count += calc_str(s);
-            }
-        }
-    }
+
+    let fd = std::fs::File::open("./data/aoc8.txt").unwrap();
+    let x = std::io::BufReader::new(fd);
+    let now = Instant::now();
+    let final_count: u64 = x.lines()
+    .filter_map(|line: Result<String, _>| line.ok())
+    .par_bridge()
+    .map(|s: String| {
+        calc_str(s)
+    }).reduce(|| 0, |x, y| x + y);
     println!("Final count: {}", final_count);
+    println!("Final time (μs): {}", now.elapsed().as_micros());
+    
 }
