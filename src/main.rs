@@ -73,7 +73,6 @@ fn calc_str(strings: String) -> u64 {
     let mut _six:   u8 = 0;
     let mut _seven: u8 = 0;
     let mut _nine:  u8 = 0;
-    let mut count: u64 = 0;
     let r: Vec<&str> = strings.split(" | ").collect();
     let observed: Vec<&str> = r[0].split_whitespace().collect();
     let four_displays: Vec<&str> = r[1].split_whitespace().collect();
@@ -108,7 +107,7 @@ fn calc_str(strings: String) -> u64 {
             _two = x;//done
             _two = set_known(_two);
         }
-        if first == 4 && second == 2 && third == 4 && forth == 2 {
+        if first == 4 && second == 2 && third == 3 && forth == 2 {
             _five = x;//done
             _five = set_known(_five);
         }
@@ -121,26 +120,27 @@ fn calc_str(strings: String) -> u64 {
             _nine = set_known(_nine);
         }
     }
-    let mut i = 0;
-    let _ten: u64 = 10;
+    let mut i = 4;
+    let mut out: String = String::from("");
     for d in &outputs {
-        let mut x = encode(d);
+        let mut x = encode(*d);
         x = set_known(x);
         match x {
-            n if _zero  == n => count += 0*_ten.pow(i),
-            n if _one   == n => count += 1*_ten.pow(i),
-            n if _two   == n => count += 2*_ten.pow(i),
-            n if _three == n => count += 3*_ten.pow(i),
-            n if _four  == n => count += 4*_ten.pow(i),
-            n if _five  == n => count += 5*_ten.pow(i),
-            n if _six   == n => count += 6*_ten.pow(i),
-            n if _seven == n => count += 7*_ten.pow(i),
-            n if _eight == n => count += 8*_ten.pow(i),
-            n if _nine  == n => count += 9*_ten.pow(i),
+            n if _zero  == n => out.push('0'),
+            n if _one   == n => out.push('1'),
+            n if _two   == n => out.push('2'),
+            n if _three == n => out.push('3'),
+            n if _four  == n => out.push('4'),
+            n if _five  == n => out.push('5'),
+            n if _six   == n => out.push('6'),
+            n if _seven == n => out.push('7'),
+            n if _eight == n => out.push('8'),
+            n if _nine  == n => out.push('9'),
             _ => {}
         }
-        i += 1;
+        i -= 1;
     }
+    let count = out.parse().unwrap();
     println!("Count: {}", count);
     count
 }
@@ -153,12 +153,12 @@ where P: AsRef<Path>, {
 
 fn main() {
     let mut final_count = 0;
-    let mut i = 0;
+    //let mut i = 0;
     if let Ok(lines) = read_lines("./data/aoc8.txt") {
         for line in lines {
             if let Ok(s) = line {
-                println!("Line: {} ", i);
-                i += 1;
+                //println!("Line: {} ", i);
+                //i += 1;
                 final_count += calc_str(s);
             }
         }
