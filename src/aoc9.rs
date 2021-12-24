@@ -20,6 +20,8 @@ fn not_inside(x: i32, y: i32, grid: Vec<Vec<u8>>, w: u32, h: u32) -> bool {
     x as u32 > w-1 || y as u32 > h-1 || x < 0 || y < 0 || grid[x as usize][y as usize] == 9
 }
 
+
+//Essentially bucket fill algorithm. Could be improved using a scanline method.
 fn fill_basin(x: i32, y: i32, grid: &mut Vec<Vec<u8>>, w: u32, h: u32) -> u64 {
     let mut q: BinaryHeap<(i32,i32)> = BinaryHeap::new();
     let mut count = 0;
@@ -29,7 +31,7 @@ fn fill_basin(x: i32, y: i32, grid: &mut Vec<Vec<u8>>, w: u32, h: u32) -> u64 {
         if !not_inside(x,y, grid.to_vec(), w, h) {
             grid[x as usize][y as usize] = 9;
             count += 1;
-            q.push((x, y+1));
+            q.push((x, y+1)); 
             q.push((x, y-1));
             q.push((x-1, y));
             q.push((x+1, y));
@@ -186,7 +188,6 @@ pub fn run() {
         w = s.chars().count() as u32;
         h += 1;
     });
-    let now = Instant::now();
     let final_count;
     const RADIX: u32 = 10;
     let mut array = vec![vec![0; h as usize]; w as usize];
@@ -198,6 +199,7 @@ pub fn run() {
         }
         j = j + 1;
     });
+    let now = Instant::now();
     final_count = calc_risk(&mut array, w, h);
     println!("Final hazard level: {}", final_count);
     println!("Final time (μs): {}", now.elapsed().as_micros());
