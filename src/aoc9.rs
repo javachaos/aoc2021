@@ -3,6 +3,8 @@ use std::time::Instant;
 use std::cmp;
 use std::collections::BinaryHeap;
 
+const DEBUG: bool = false;
+
 fn min_3(a: u8, b: u8, c: u8) -> u8 {
     let y = cmp::min(b,c);
     cmp::min(a,y)
@@ -37,7 +39,7 @@ fn fill_basin(x: i32, y: i32, grid: &mut Vec<Vec<u8>>, w: u32, h: u32) -> u64 {
             q.push((x+1, y));
         }
     }
-    if count > 95 {
+    if count > 95  && DEBUG {
         println!("--------------[Count: {}]----------------", count);
         print(grid,w,h);
         println!("-----------------------------------------");
@@ -177,7 +179,7 @@ fn calc_risk(grid: &mut Vec<Vec<u8>>, w: u32, h: u32) -> u64 {
     risk
 }
 pub fn run() {
-    println!("---------------------------------------[AOC9- Begin]---------------------------------------- ");
+    println!("---------------------------------------[AOC9 - Begin]-----------------------------------------");
     let fd = std::fs::File::open("./data/aoc9.txt").unwrap();
     let fd2 = std::fs::File::open("./data/aoc9.txt").unwrap();
     let x = std::io::BufReader::new(fd);
@@ -203,5 +205,5 @@ pub fn run() {
     final_count = calc_risk(&mut array, w, h);
     println!("Final hazard level: {}", final_count);
     println!("Final time (μs): {}", now.elapsed().as_micros());
-    println!("---------------------------------------[AOC9- End]---------------------------------------- ");
+    println!("---------------------------------------[AOC9 - End]-------------------------------------------");
 }

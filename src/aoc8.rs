@@ -122,7 +122,7 @@ pub fn calc_str(strings: String) -> u64 {
 }
 
 pub fn run() {
-    println!("---------------------------------------[AOC8- Begin]---------------------------------------- ");
+    println!("---------------------------------------[AOC8 - Begin]-----------------------------------------");
     let fd = std::fs::File::open("./data/aoc8.txt").unwrap();
     let x = std::io::BufReader::new(fd);
     let now = Instant::now();
@@ -134,5 +134,5 @@ pub fn run() {
     }).reduce(|| 0, |x, y| x + y);
     println!("Final count: {}", final_count);
     println!("Final time (μs): {}", now.elapsed().as_micros());
-    println!("---------------------------------------[AOC8- End]---------------------------------------- ");
+    println!("---------------------------------------[AOC8 - End]-------------------------------------------");
 }
